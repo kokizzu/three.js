@@ -381,25 +381,51 @@ var Loader = function ( editor ) {
 
 				break;
 
-			/*
-			case 'utf8':
+			case 'svg':
 
 				reader.addEventListener( 'load', function ( event ) {
 
 					var contents = event.target.result;
 
-					var geometry = new THREE.UTF8Loader().parse( contents );
-					var material = new THREE.MeshLambertMaterial();
+					var loader = new THREE.SVGLoader();
+					var paths = loader.parse( contents );
 
-					var mesh = new THREE.Mesh( geometry, material );
+					//
 
-					editor.execute( new AddObjectCommand( mesh ) );
+					var group = new THREE.Group();
+					group.scale.multiplyScalar( 0.1 );
+					group.scale.y *= -1;
+
+					for ( var i = 0; i < paths.length; i ++ ) {
+
+						var path = paths[ i ];
+
+						var material = new THREE.MeshBasicMaterial( {
+							color: path.color,
+							depthWrite: false
+						} );
+
+						var shapes = path.toShapes( true );
+
+						for ( var j = 0; j < shapes.length; j ++ ) {
+
+							var shape = shapes[ j ];
+
+							var geometry = new THREE.ShapeBufferGeometry( shape );
+							var mesh = new THREE.Mesh( geometry, material );
+
+							group.add( mesh );
+
+						}
+
+					}
+
+					editor.execute( new AddObjectCommand( group ) );
 
 				}, false );
-				reader.readAsBinaryString( file );
+				reader.readAsText( file );
 
 				break;
-			*/
 
 			case 'vtk':
 
